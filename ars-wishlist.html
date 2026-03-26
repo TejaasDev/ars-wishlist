@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AutoRobotics Studio — Robotics for Everyone</title>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+  :root {
+    --bg: #0D0D0D; 
+    --surface: rgba(18, 18, 18, 0.8);
+    --border: rgba(255,255,255,0.08);
+    --accent: #7C5CFF; 
+    --accent-secondary: #00FF90; 
+    --accent-tertiary: #BA6200; 
+    --accent-glow: rgba(124, 92, 255, 0.35);
+    --text: #ffffff;
+    --text-muted: #888888;
+    --grid: rgba(124, 92, 255, 0.05);
+    --selection: rgba(124, 92, 255, 0.2);
+    --transition: 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  [data-theme="light"] {
+    --bg: #FAFAFA;
+    --surface: rgba(255, 255, 255, 0.8);
+    --border: rgba(0,0,0,0.1);
+    --accent: #7C5CFF; 
+    --accent-secondary: #111111; 
+    --accent-tertiary: #1A7A4A; 
+    --accent-glow: rgba(124, 92, 255, 0.15);
+    --text: #111111;
+    --text-muted: #666666;
+    --grid: rgba(124, 92, 255, 0.04);
+    --selection: rgba(124, 92, 255, 0.1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    line-height: 1.6;
+    transition: background var(--transition), color var(--transition);
+    cursor: none;
+  }
+
+  ::selection { background: var(--selection); color: var(--text); }
+
+  /* Background Effects */
+  .grid {
+    position: fixed;
+    inset: 0;
+    background-image: 
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 60px 60px;
+    background-position: center center;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .glow-orb {
+    position: fixed;
+    width: 60vw;
+    height: 60vw;
+    background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.25;
+    filter: blur(100px);
+    transform: translate(-30%, -30%);
+    animation: floating orbit 20s infinite linear;
+  }
+
+  @keyframes orbit {
+    from { transform: translate(-30%, -30%) rotate(0deg); }
+    to { transform: translate(-30%, -30%) rotate(360deg); }
+  }
+
+  /* Custom Cursor */
+  .cursor-dot {
+    position: fixed;
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 10000;
+    transform: translate(-50%, -50%);
+    transition: width 0.3s, height 0.3s;
+  }
+
+  .cursor-ring {
+    position: fixed;
+    width: 40px;
+    height: 40px;
+    border: 1.5px solid var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s cubic-bezier(0.23, 1, 0.32, 1);
+    box-shadow: 0 0 15px var(--accent-glow), inset 0 0 10px var(--accent-glow);
+  }
+
+  /* Navigation & Controls */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    padding: 20px 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 2000;
+    background: var(--surface);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo-wrap { display: flex; flex-direction: column; cursor: pointer; }
+  .logo { 
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: -0.5px;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+
+  .logo span { color: var(--accent); }
+
+  .by-line {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700; /* BOLD as requested */
+    margin-top: 2px;
+  }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+  }
+
+  .theme-toggle {
+    background: transparent;
+    border: 1px solid var(--border);
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.3s;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .theme-toggle:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 15px var(--accent-glow);
+  }
+
+  /* Early Access Glow Badge */
+  .early-access-pill {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    background: var(--accent);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 100px;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 30px;
+    box-shadow: 0 0 25px var(--accent-glow);
+    animation: pulse-glow 2s infinite ease-in-out;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 15px var(--accent-glow); transform: scale(1); }
+    50% { box-shadow: 0 0 25px var(--accent-glow); transform: scale(1.05); }
+  }
+
+  /* Hero Section */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 160px 5% 80px; /* Increased top padding to avoid header clash */
+    position: relative;
+    z-index: 10;
+  }
+
+  .hero-pretitle {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--accent-secondary); 
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .hero-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(40px, 9vw, 120px);
+    font-weight: 800;
+    line-height: 0.85;
+    letter-spacing: -6px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .hero-title div:nth-child(2) {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .outline-text {
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--accent);
+  }
+
+  .accent-text {
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: clamp(16px, 1.8vw, 18px);
+    color: var(--text-muted);
+    max-width: 750px;
+    margin: 40px auto;
+    font-weight: 400;
+    line-height: 1.8;
+  }
+
+  .hero-sub strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* Form */
+  .waitlist-wrap {
+    width: 100%;
+    max-width: 600px;
+    margin: 40px auto;
+    display: flex;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px;
+    transition: all 0.3s;
+  }
+
+  .waitlist-wrap:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 30px var(--accent-glow);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .waitlist-wrap input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 18px 24px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    outline: none;
+  }
+
+  .waitlist-wrap button {
+    background: var(--accent); 
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 0 40px;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: 0.3s;
+    white-space: nowrap;
+  }
+
+  .waitlist-wrap button:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+
+  .stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 80px;
+    margin-top: 80px;
+    width: 100%;
+  }
+
+  .stat-item {
+    text-align: center;
+  }
+
+  .stat-val {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 42px;
+    line-height: 1;
+    color: var(--accent-secondary);
+    display: block;
+    margin-bottom: 8px;
+    letter-spacing: -1px;
+    text-transform: uppercase;
+  }
+
+  .stat-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* Sections */
+  .content-section {
+    padding: 140px 10%;
+    position: relative;
+    z-index: 10;
+  }
+
+  .section-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent-tertiary); 
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    display: block;
+  }
+
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px, 5vw, 56px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -2px;
+    margin-bottom: 40px;
+    max-width: 800px;
+    text-transform: uppercase;
+  }
+
+  .content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+  }
+
+  .grid-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border);
+    padding: 60px 40px;
+    border-radius: 12px;
+    transition: all 0.3s;
+  }
+
+  .grid-card:hover {
+    background: rgba(124, 92, 255, 0.05);
+    border-color: var(--accent);
+    transform: translateY(-5px);
+  }
+
+  .card-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    margin-bottom: 30px;
+    display: block;
+  }
+
+  .grid-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    margin-bottom: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .grid-card p {
+    color: var(--text-muted);
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  footer {
+    padding: 60px 10%;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 10;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 40px;
+  }
+
+  .footer-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    transition: color 0.3s;
+  }
+
+  .footer-links a:hover { color: var(--accent); }
+
+  @media (max-width: 900px) {
+    nav { padding: 20px 30px; }
+    .hero { padding-top: 140px; }
+    .hero-title { letter-spacing: -3px; }
+    .stats-row { gap: 40px; flex-wrap: wrap; }
+    .content-section { padding: 80px 30px; }
+    footer { flex-direction: column; gap: 30px; text-align: center; }
+  }
+
+  /* Utility Animations */
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s, transform 0.8s;
+  }
+
+  .reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .scroll-down {
+    position: absolute;
+    bottom: 40px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--text-muted);
+    animation: bounce 2s infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(10px); }
+  }
+</style>
+</head>
+<body data-theme="dark">
+
+<div class="grid"></div>
+<div class="glow-orb" id="glowOrb"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav>
+  <div class="logo-wrap">
+    <div class="logo">AutoRobotics <span>Studio</span></div>
+    <span class="by-line">by RoboPilot Labs</span>
+  </div>
+  <div class="nav-right">
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">Light Mode</button>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="early-access-pill">Early Access</div>
+  <p class="hero-pretitle">// The future of robotics is for everyone</p>
+  
+  <div class="hero-title">
+    <div>Build robots</div>
+    <div>
+      <span>with</span> 
+      <span class="outline-text">plain</span>
+      <span class="accent-text">English.</span>
+    </div>
+  </div>
+
+  <p class="hero-sub">
+    No robotics degree. No expensive developers. No years of learning. 
+    <strong>Just describe what you want your robot to do — and AutoRobotics Studio builds it.</strong> 
+    For students, engineers, hobbyists, and startups across India and beyond.
+  </p>
+
+  <div class="waitlist-wrap">
+    <input type="email" placeholder="your@email.com" id="emailInput">
+    <button onclick="subscribe()">JOIN WAITLIST</button>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-item">
+      <span class="stat-val">4 mo</span>
+      <span class="stat-label">to launch</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val">B2B+C</span>
+      <span class="stat-label">both sides</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val">India</span>
+      <span class="stat-label">built here</span>
+    </div>
+  </div>
+
+  <div class="scroll-down">SCROLL TO EXPLORE</div>
+</section>
+
+
+<section class="content-section reveal">
+  <span class="section-tag">// The Problems</span>
+  <h2>Robotics is broken.<br/>Here's how.</h2>
+  <div class="content-grid">
+    <div class="grid-card">
+      <span class="card-num">01 // SKILL</span>
+      <h3>Too hard to start</h3>
+      <p>ROS, C++, embedded systems, wiring diagrams — just to make a robot move forward. The learning curve kills most dreams before they begin.</p>
+    </div>
+    <div class="grid-card">
+      <span class="card-num">02 // COST</span>
+      <h3>Developers cost a fortune</h3>
+      <p>A good robotics engineer costs ₹80L–₹1.2Cr per year. Most startups and students simply cannot afford one. So the idea dies.</p>
+    </div>
+    <div class="grid-card">
+      <span class="card-num">03 // ACCESS</span>
+      <h3>Rural India is left out</h3>
+      <p>The best robotics education reaches metro cities. A student in a tier-3 town has almost no way in. That talent is being wasted.</p>
+    </div>
+  </div>
+</section>
+
+<section class="content-section reveal">
+  <span class="section-tag">// For whom</span>
+  <h2>Built for three kinds<br/>of builders.</h2>
+  <div class="content-grid">
+    <div class="grid-card">
+      <span class="card-num">STUDENTS</span>
+      <h3>B2C · Free to start</h3>
+      <p>From rural schools to curious teenagers — if you've ever wanted to build a robot but didn't know where to start, this is for you. No prior knowledge needed.</p>
+    </div>
+    <div class="grid-card">
+      <span class="card-num">ENGINEERS</span>
+      <h3>B2C · Pro plan</h3>
+      <p>You know what you want to build but the setup takes weeks. AutoRobotics skips the boilerplate — generate code, wiring, and logic in minutes.</p>
+    </div>
+    <div class="grid-card">
+      <span class="card-num">STARTUPS</span>
+      <h3>B2B · Team plan</h3>
+      <p>Can't afford a robotics developer? AutoRobotics is your team. Describe the automation you need — we generate the full technical stack.</p>
+    </div>
+  </div>
+</section>
+
+<section class="content-section reveal" style="padding-bottom: 200px;">
+  <span class="section-tag">// Capabilities</span>
+  <h2>Vibe coding.<br/>For robots.</h2>
+  <div class="content-grid">
+    <div class="grid-card">
+      <span class="card-num">01 / GENERATE</span>
+      <h3>Describe → Code</h3>
+      <p>Type "make my robot avoid obstacles" and get production-ready Arduino/ROS code instantly. No syntax. No documentation hunting.</p>
+    </div>
+    <div class="grid-card">
+      <span class="card-num">02 / WIRE</span>
+      <h3>Auto wiring diagrams</h3>
+      <p>Get visual wiring diagrams alongside your code. Know exactly which pin connects where. Build with confidence.</p>
+    </div>
+    <div class="grid-card">
+      <span class="card-num">03 / LEARN</span>
+      <h3>Always teaching</h3>
+      <p>Every output explains what it does and why. You don't just get code — you understand it. AutoRobotics teaches as it builds.</p>
+    </div>
+    <div class="grid-card">
+      <span class="card-num">04 / SCALE</span>
+      <h3>Hobby to Hero</h3>
+      <p>Start on a ₹500 Arduino. Scale to industrial robotics. The same platform grows with you from classroom project to startup product.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="logo-wrap">
+    <div class="logo">AutoRobotics <span>Studio</span></div>
+    <span class="by-line" style="font-weight: 700;">by RoboPilot Labs</span>
+  </div>
+  <div class="footer-links">
+    <a href="#">Instagram</a>
+    <a href="#">LinkedIn</a>
+  </div>
+  <p>© 2026 AutoRobotics Studio. Built in India.</p>
+</footer>
+
+<script>
+  // Supabase Configuration
+  const SUPABASE_URL = 'https://eueeknuyhlnmcdkkpxwc.supabase.co'
+  const SUPABASE_ANON_KEY = 'sb_publishable_OGz1KcpcDcPbQpVLIxUnOw_Hr6RP3xS'
+  const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+  // Cursor Logic
+  const dot = document.getElementById('cursorDot');
+  const ring = document.getElementById('cursorRing');
+  const orb = document.getElementById('glowOrb');
+
+  let mouseX = 0, mouseY = 0;
+  let ringX = 0, ringY = 0;
+
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    
+    dot.style.left = `${mouseX}px`;
+    dot.style.top = `${mouseY}px`;
+    
+    // Move orb
+    orb.style.left = `${mouseX}px`;
+    orb.style.top = `${mouseY}px`;
+  });
+
+  // Smooth ring movement
+  function animate() {
+    ringX += (mouseX - ringX) * 0.15;
+    ringY += (mouseY - ringY) * 0.15;
+    
+    ring.style.left = `${ringX}px`;
+    ring.style.top = `${ringY}px`;
+    
+    requestAnimationFrame(animate);
+  }
+  animate();
+
+  // Theme Toggle
+  function toggleTheme() {
+    const body = document.body;
+    const btn = document.getElementById('themeBtn');
+    const isDark = body.getAttribute('data-theme') === 'dark';
+    
+    if (isDark) {
+      body.setAttribute('data-theme', 'light');
+      btn.innerText = 'Dark Mode';
+    } else {
+      body.setAttribute('data-theme', 'dark');
+      btn.innerText = 'Light Mode';
+    }
+  }
+
+  // Scroll Reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('active');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Form Submission
+  async function subscribe() {
+    const emailInput = document.getElementById('emailInput');
+    const email = emailInput.value;
+    const button = document.querySelector('.waitlist-wrap button');
+    
+    if (email && email.includes('@')) {
+      const originalText = button.innerText;
+      button.innerText = 'SAVING...';
+      button.disabled = true;
+
+      try {
+        const { error } = await _supabase
+          .from('wishlist')
+          .insert([{ email: email }]);
+
+        if (error) throw error;
+
+        document.querySelector('.waitlist-wrap').innerHTML = 
+          `<div style="color: var(--accent-secondary); padding: 18px; font-family: 'Space Mono'; font-size: 14px; width: 100%; text-align: center;">// you're on the list. talk soon.</div>`;
+      } catch (err) {
+        console.error('Error saving email:', err);
+        button.innerText = 'ERROR, TRY AGAIN';
+        button.disabled = false;
+        setTimeout(() => { button.innerText = originalText; }, 2000);
+      }
+    } else {
+      emailInput.style.borderColor = 'var(--accent-tertiary)';
+      setTimeout(() => { emailInput.style.borderColor = 'var(--border)'; }, 2000);
+    }
+  }
+</script>
+
+</body>
+</html>
