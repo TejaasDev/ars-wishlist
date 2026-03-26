@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RoboPilot Labs — Robotics for Everyone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;700;800&family=Inter:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #060810;
+    --surface: #0d1120;
+    --border: #1e2540;
+    --accent: #00e5ff;
+    --accent2: #7c3aed;
+    --accent3: #f59e0b;
+    --text: #f0f4ff;
+    --muted: #6b7a9e;
+    --card: #0f1629;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.1s;
+    mix-blend-mode: screen;
+  }
+  .cursor-ring {
+    width: 32px; height: 32px;
+    border: 1px solid rgba(0,229,255,0.4);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9998;
+    transition: left 0.12s ease, top 0.12s ease;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Glow orbs */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.15;
+  }
+  .orb1 { width: 600px; height: 600px; background: var(--accent2); top: -200px; left: -200px; }
+  .orb2 { width: 500px; height: 500px; background: var(--accent); bottom: -100px; right: -100px; }
+
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 48px;
+    background: rgba(6,8,16,0.8);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+  .logo span { color: var(--accent); }
+
+  .nav-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 4px 12px;
+    border-radius: 2px;
+    letter-spacing: 1px;
+  }
+
+  /* Hero */
+  .hero {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 120px 24px 80px;
+  }
+
+  .hero-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s forwards;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(42px, 8vw, 88px);
+    line-height: 1.0;
+    letter-spacing: -2px;
+    margin-bottom: 12px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.4s forwards;
+  }
+
+  .hero h1 .line2 {
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(0,229,255,0.5);
+    display: block;
+  }
+
+  .hero h1 .accent-word {
+    color: var(--accent);
+    position: relative;
+  }
+
+  .hero-sub {
+    font-size: 18px;
+    color: var(--muted);
+    max-width: 560px;
+    line-height: 1.7;
+    margin: 28px auto 48px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.6s forwards;
+  }
+
+  .hero-sub strong { color: var(--text); font-weight: 500; }
+
+  /* Form */
+  .wishlist-form {
+    display: flex;
+    gap: 0;
+    max-width: 480px;
+    width: 100%;
+    margin: 0 auto;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.8s forwards;
+  }
+
+  .wishlist-form input {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-right: none;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    padding: 14px 20px;
+    border-radius: 4px 0 0 4px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .wishlist-form input::placeholder { color: var(--muted); }
+  .wishlist-form input:focus { border-color: var(--accent); }
+
+  .wishlist-form button {
+    background: var(--accent);
+    color: #000;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: opacity 0.2s, transform 0.1s;
+    white-space: nowrap;
+  }
+  .wishlist-form button:hover { opacity: 0.9; transform: translateX(2px); }
+
+  .success-msg {
+    display: none;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    margin-top: 16px;
+    letter-spacing: 1px;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 48px;
+    margin-top: 56px;
+    opacity: 0;
+    animation: fadeUp 0.8s 1s forwards;
+  }
+
+  .stat {
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 28px;
+    color: var(--accent);
+    display: block;
+  }
+  .stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 1px;
+  }
+
+  /* Scroll indicator */
+  .scroll-hint {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    animation: fadeUp 0.8s 1.4s forwards;
+  }
+  .scroll-hint span { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 2px; }
+  .scroll-line {
+    width: 1px; height: 48px;
+    background: linear-gradient(to bottom, var(--accent), transparent);
+    animation: scrollPulse 2s infinite;
+  }
+
+  /* Story section */
+  .story {
+    position: relative;
+    z-index: 1;
+    padding: 120px 24px;
+    max-width: 860px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .section-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    display: block;
+  }
+
+  .story h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(28px, 5vw, 48px);
+    line-height: 1.15;
+    letter-spacing: -1px;
+    margin-bottom: 28px;
+  }
+
+  .story h2 em {
+    font-style: normal;
+    color: var(--accent3);
+  }
+
+  .story p {
+    font-size: 17px;
+    color: var(--muted);
+    line-height: 1.8;
+    max-width: 640px;
+    margin: 0 auto 20px;
+  }
+  .story p strong { color: var(--text); font-weight: 500; }
+
+  .story-quote {
+    margin: 48px auto;
+    padding: 32px 40px;
+    border-left: 3px solid var(--accent);
+    background: var(--card);
+    border-radius: 0 8px 8px 0;
+    text-align: left;
+    max-width: 580px;
+  }
+  .story-quote p {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.5;
+    margin: 0 0 12px;
+  }
+  .story-quote cite {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 1px;
+    font-style: normal;
+  }
+
+  /* Problem section */
+  .problem {
+    position: relative;
+    z-index: 1;
+    padding: 80px 24px 120px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .problem-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 56px;
+  }
+
+  .prob-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 36px 28px;
+    transition: border-color 0.3s;
+  }
+  .prob-card:hover { border-color: var(--accent); }
+  .prob-card:first-child { border-radius: 8px 0 0 8px; }
+  .prob-card:last-child { border-radius: 0 8px 8px 0; }
+
+  .prob-icon {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent3);
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .prob-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+
+  .prob-card p {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* For whom */
+  .for-whom {
+    position: relative;
+    z-index: 1;
+    padding: 80px 24px 120px;
+    max-width: 1100px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .users-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 56px;
+  }
+
+  .user-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 36px 28px;
+    text-align: left;
+    transition: transform 0.3s, border-color 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .user-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .user-card:nth-child(1)::before { background: var(--accent); }
+  .user-card:nth-child(2)::before { background: var(--accent3); }
+  .user-card:nth-child(3)::before { background: var(--accent2); }
+
+  .user-card:hover { transform: translateY(-4px); border-color: rgba(0,229,255,0.3); }
+
+  .user-emoji {
+    font-size: 32px;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .user-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .user-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    display: block;
+  }
+  .user-card:nth-child(1) .user-tag { color: var(--accent); }
+  .user-card:nth-child(2) .user-tag { color: var(--accent3); }
+  .user-card:nth-child(3) .user-tag { color: #a78bfa; }
+
+  .user-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+
+  /* Features */
+  .features {
+    position: relative;
+    z-index: 1;
+    padding: 80px 24px 120px;
+    max-width: 1100px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .features-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2px;
+    margin-top: 56px;
+    text-align: left;
+  }
+
+  .feat {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 36px;
+    transition: background 0.3s;
+  }
+  .feat:hover { background: #131829; }
+  .feat:nth-child(1) { border-radius: 8px 0 0 0; }
+  .feat:nth-child(2) { border-radius: 0 8px 0 0; }
+  .feat:nth-child(3) { border-radius: 0 0 0 8px; }
+  .feat:nth-child(4) { border-radius: 0 0 8px 0; }
+
+  .feat-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .feat h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .feat p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+
+  /* CTA bottom */
+  .cta-bottom {
+    position: relative;
+    z-index: 1;
+    padding: 80px 24px 120px;
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .cta-bottom h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+
+  .cta-bottom p {
+    font-size: 16px;
+    color: var(--muted);
+    margin-bottom: 40px;
+    line-height: 1.7;
+  }
+
+  /* Footer */
+  footer {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--border);
+    padding: 32px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  footer p {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  footer a {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    text-decoration: none;
+    letter-spacing: 1px;
+  }
+
+  /* Section header shared */
+  .sec-header { text-align: center; }
+  .sec-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(28px, 5vw, 44px);
+    letter-spacing: -1px;
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+  .sec-header p {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  /* Scroll reveal */
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.7s, transform 0.7s;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Divider line */
+  .divider {
+    width: 60px; height: 2px;
+    background: var(--accent);
+    margin: 0 auto 20px;
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 16px 24px; }
+    .problem-grid, .users-row, .features-list { grid-template-columns: 1fr; }
+    .prob-card:first-child, .prob-card:last-child { border-radius: 8px; }
+    .feat:nth-child(1), .feat:nth-child(2), .feat:nth-child(3), .feat:nth-child(4) { border-radius: 8px; }
+    .hero-stats { gap: 24px; }
+    .wishlist-form { flex-direction: column; }
+    .wishlist-form input { border-right: 1px solid var(--border); border-bottom: none; border-radius: 4px 4px 0 0; }
+    .wishlist-form button { border-radius: 0 0 4px 4px; }
+    footer { flex-direction: column; gap: 12px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Robo<span>Pilot</span> Labs</div>
+  <div class="nav-badge">COMING SOON</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <p class="hero-tag">// The future of robotics is for everyone</p>
+
+  <h1>
+    Build robots with<br/>
+    <span class="line2">plain <span class="accent-word">English.</span></span>
+  </h1>
+
+  <p class="hero-sub">
+    No robotics degree. No expensive developers. No years of learning.
+    <strong>Just describe what you want your robot to do — and RoboPilot Labs builds it.</strong>
+    For students, engineers, hobbyists, and startups across India and beyond.
+  </p>
+
+  <div class="wishlist-form">
+    <input type="email" id="emailInput" placeholder="your@email.com" autocomplete="off"/>
+    <button onclick="joinWishlist()">JOIN WAITLIST</button>
+  </div>
+  <p class="success-msg" id="successMsg">// you're on the list. we'll be in touch.</p>
+
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-num">4 mo</span>
+      <span class="stat-label">TO LAUNCH</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">B2B+C</span>
+      <span class="stat-label">BOTH SIDES</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">India</span>
+      <span class="stat-label">BUILT HERE</span>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <span>SCROLL</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- STORY -->
+<section class="story reveal">
+  <span class="section-tag">// why we exist</span>
+  <div class="divider"></div>
+  <h2>Robotics found us <em>too late.</em><br/>We're fixing that.</h2>
+  <p>
+    Most students in rural India never hear the word "robotics" until college — if at all.
+    The tools are too complex. The resources are in English. The hardware is expensive.
+    <strong>And the developers who understand it all charge more than most startups can afford.</strong>
+  </p>
+  <p>
+    RoboPilot Labs was started by a 16-year-old who discovered robotics late
+    and decided that no student — rural or urban, rich or middle-class — should have that same regret.
+  </p>
+
+  <div class="story-quote">
+    <p>"I found robotics too late. I'm building RoboPilot Labs so no one else has to say that."</p>
+    <cite>— Founder, RoboPilot Labs · Class 11, India</cite>
+  </div>
+
+  <p>
+    We are building the platform that makes robotics as accessible as making a website.
+    <strong>If you can describe it, RoboPilot can build it.</strong>
+  </p>
+</section>
+
+<!-- PROBLEM -->
+<section class="problem reveal">
+  <div class="sec-header">
+    <span class="section-tag">// the problem</span>
+    <div class="divider"></div>
+    <h2>Robotics is broken.<br/>Here's how.</h2>
+    <p>Three walls stand between people and building robots. We're tearing all three down.</p>
+  </div>
+
+  <div class="problem-grid">
+    <div class="prob-card">
+      <span class="prob-icon">01 // SKILL</span>
+      <h3>Too hard to start</h3>
+      <p>ROS, C++, embedded systems, wiring diagrams — just to make a robot move forward. The learning curve kills most dreams before they begin.</p>
+    </div>
+    <div class="prob-card">
+      <span class="prob-icon">02 // COST</span>
+      <h3>Developers cost a fortune</h3>
+      <p>A good robotics engineer costs ₹80L–₹1.2Cr per year. Most startups and students simply cannot afford to hire one. So the idea dies.</p>
+    </div>
+    <div class="prob-card">
+      <span class="prob-icon">03 // ACCESS</span>
+      <h3>Rural India is left out</h3>
+      <p>The best robotics education reaches metro cities and IITs. A student in a tier-3 town has almost no way in. That talent is being wasted.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOR WHOM -->
+<section class="for-whom reveal">
+  <div class="sec-header">
+    <span class="section-tag">// who it's for</span>
+    <div class="divider"></div>
+    <h2>Built for three kinds<br/>of builders.</h2>
+    <p>Whether you're curious, skilled, or building a company — there's a seat for you.</p>
+  </div>
+
+  <div class="users-row">
+    <div class="user-card">
+      <span class="user-emoji">🎓</span>
+      <h3>Students &amp; Beginners</h3>
+      <span class="user-tag">B2C · FREE TO START</span>
+      <p>From rural schools to curious teenagers — if you've ever wanted to build a robot but didn't know where to start, this is for you. No prior knowledge needed.</p>
+    </div>
+    <div class="user-card">
+      <span class="user-emoji">⚙️</span>
+      <h3>Engineers &amp; Hobbyists</h3>
+      <span class="user-tag">B2C · PRO PLAN</span>
+      <p>You know what you want to build but the setup takes weeks. RoboPilot skips the boilerplate — generate code, wiring, and logic in minutes, not months.</p>
+    </div>
+    <div class="user-card">
+      <span class="user-emoji">🏢</span>
+      <h3>Startups &amp; Companies</h3>
+      <span class="user-tag">B2B · TEAM PLAN</span>
+      <p>Can't find or afford a robotics developer? RoboPilot is your team. Describe the automation or robot you need — we generate the full technical stack.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features reveal">
+  <div class="sec-header">
+    <span class="section-tag">// what it does</span>
+    <div class="divider"></div>
+    <h2>Vibe coding.<br/>For robots.</h2>
+    <p>The same way AI changed software development — we're doing it for robotics.</p>
+  </div>
+
+  <div class="features-list">
+    <div class="feat">
+      <span class="feat-num">01 // GENERATE</span>
+      <h3>Describe → Code</h3>
+      <p>Type "make my robot avoid obstacles and follow a line" and get production-ready Arduino/ROS code instantly. No syntax. No documentation hunting.</p>
+    </div>
+    <div class="feat">
+      <span class="feat-num">02 // WIRE</span>
+      <h3>Auto wiring diagrams</h3>
+      <p>Get a visual wiring diagram alongside your code. Know exactly which pin connects where. Build with confidence even on your first robot.</p>
+    </div>
+    <div class="feat">
+      <span class="feat-num">03 // LEARN</span>
+      <h3>Built-in explanation</h3>
+      <p>Every output explains what it does and why. You don't just get code — you understand it. RoboPilot teaches as it builds.</p>
+    </div>
+    <div class="feat">
+      <span class="feat-num">04 // SCALE</span>
+      <h3>From hobbyist to company</h3>
+      <p>Start on a ₹500 Arduino. Scale to industrial robotics. The same platform grows with you — from classroom project to startup product.</p>
+    </div>
+  </div>
+</section>
+
+<!-- BOTTOM CTA -->
+<section class="cta-bottom reveal">
+  <span class="section-tag">// join the movement</span>
+  <div class="divider"></div>
+  <h2>Be the first to<br/>build with RoboPilot.</h2>
+  <p>We're launching in 4 months. Join the waitlist and get early access, founding member pricing, and updates directly from the team.</p>
+
+  <div class="wishlist-form" style="max-width:440px;">
+    <input type="email" id="emailInput2" placeholder="your@email.com" autocomplete="off"/>
+    <button onclick="joinWishlist2()">GET EARLY ACCESS</button>
+  </div>
+  <p class="success-msg" id="successMsg2">// you're on the list. talk soon.</p>
+
+  <p style="margin-top:24px; font-family:'Space Mono',monospace; font-size:11px; color:var(--muted); letter-spacing:1px;">
+    No spam. No noise. Just RoboPilot.
+  </p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2025 ROBOPILOT LABS · INDIA</p>
+  <a href="mailto:hello@robopilotlabs.com">hello@robopilotlabs.com</a>
+</footer>
+
+<script>
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX - 4 + 'px';
+    cursor.style.top = e.clientY - 4 + 'px';
+    ring.style.left = e.clientX - 16 + 'px';
+    ring.style.top = e.clientY - 16 + 'px';
+  });
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  reveals.forEach(r => observer.observe(r));
+
+  // Wishlist
+  function joinWishlist() {
+    const email = document.getElementById('emailInput').value;
+    if (!email || !email.includes('@')) {
+      document.getElementById('emailInput').style.borderColor = '#ef4444';
+      return;
+    }
+    document.querySelector('.wishlist-form').style.display = 'none';
+    document.getElementById('successMsg').style.display = 'block';
+  }
+  function joinWishlist2() {
+    const email = document.getElementById('emailInput2').value;
+    if (!email || !email.includes('@')) {
+      document.getElementById('emailInput2').style.borderColor = '#ef4444';
+      return;
+    }
+    document.querySelectorAll('.wishlist-form')[1].style.display = 'none';
+    document.getElementById('successMsg2').style.display = 'block';
+  }
+</script>
+</body>
+</html>
