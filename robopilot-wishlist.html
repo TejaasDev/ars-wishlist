@@ -28,7 +28,11 @@
     color: var(--text);
     font-family: 'Inter', sans-serif;
     overflow-x: hidden;
-    cursor: none;
+  }
+
+  /* Only use custom cursor on mouse-capable devices */
+  @media (hover: hover) and (pointer: fine) {
+    body { cursor: none; }
   }
 
   /* Custom cursor */
@@ -594,16 +598,44 @@
     margin: 0 auto 20px;
   }
 
+  @media (max-width: 1024px) {
+    nav { padding: 16px 32px; }
+    .hero { padding-top: 140px; }
+    .problem-grid, .users-row { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    .features-list { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  }
+
   @media (max-width: 768px) {
-    nav { padding: 16px 24px; }
-    .problem-grid, .users-row, .features-list { grid-template-columns: 1fr; }
-    .prob-card:first-child, .prob-card:last-child { border-radius: 8px; }
-    .feat:nth-child(1), .feat:nth-child(2), .feat:nth-child(3), .feat:nth-child(4) { border-radius: 8px; }
-    .hero-stats { gap: 24px; }
-    .wishlist-form { flex-direction: column; }
-    .wishlist-form input { border-right: 1px solid var(--border); border-bottom: none; border-radius: 4px 4px 0 0; }
-    .wishlist-form button { border-radius: 0 0 4px 4px; }
-    footer { flex-direction: column; gap: 12px; text-align: center; }
+    nav { padding: 12px 20px; }
+    .logo { font-size: 18px; }
+    .nav-badge { font-size: 9px; padding: 3px 10px; }
+    .hero { padding: 100px 20px 60px; }
+    .hero h1 { font-size: clamp(32px, 12vw, 64px); letter-spacing: -1px; }
+    .hero-sub { font-size: 15px; margin: 20px auto 32px; }
+    .hero-stats { gap: 24px; flex-wrap: wrap; justify-content: center; }
+    .stat-num { font-size: 24px; }
+    
+    .wishlist-form { flex-direction: column; gap: 10px; }
+    .wishlist-form input { border-right: 1px solid var(--border); border-radius: 4px; text-align: center; }
+    .wishlist-form button { border-radius: 4px; width: 100%; }
+
+    .problem-grid, .users-row, .features-list { grid-template-columns: 1fr; gap: 15px; }
+    .prob-card, .feat, .user-card { border-radius: 8px !important; }
+    
+    .story { padding: 60px 20px; }
+    .story h2 { font-size: clamp(24px, 8vw, 36px); }
+    .story-quote { padding: 24px; margin: 32px 0; }
+    .story-quote p { font-size: 18px; }
+
+    footer { flex-direction: column; gap: 20px; text-align: center; padding: 40px 20px; }
+    
+    .cursor, .cursor-ring { display: none !important; }
+  }
+
+  @media (max-width: 480px) {
+    .hero h1 { font-size: 36px; }
+    .hero-tag { font-size: 10px; letter-spacing: 2px; }
+    .stat-num { font-size: 20px; }
   }
 </style>
 </head>
