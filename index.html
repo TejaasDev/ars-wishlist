@@ -526,6 +526,94 @@
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(10px); }
   }
+
+  /* FAQ Section */
+  .faq-container {
+    max-width: 800px;
+    margin-top: 50px;
+    border-top: 1px solid var(--border);
+  }
+
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .faq-question {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px 0;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: clamp(18px, 2.5vw, 22px);
+    color: var(--text);
+    transition: color 0.3s;
+    user-select: none;
+  }
+
+  .faq-question:hover {
+    color: var(--accent);
+  }
+
+  .faq-icon {
+    flex-shrink: 0;
+    margin-left: 20px;
+    color: var(--text-muted);
+    transition: color 0.3s;
+  }
+
+  .faq-question:hover .faq-icon {
+    color: var(--accent);
+  }
+
+  .faq-icon svg {
+    display: block;
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    stroke: currentColor;
+  }
+
+  .faq-icon .vertical-line {
+    transition: opacity 0.4s cubic-bezier(0.23, 1, 0.32, 1), transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    transform-origin: center;
+  }
+
+  .faq-item.active .faq-question,
+  .faq-item.active .faq-icon {
+    color: var(--accent);
+  }
+
+  .faq-item.active .faq-icon svg {
+    transform: rotate(180deg);
+  }
+
+  .faq-item.active .vertical-line {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+
+  .faq-answer {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.4s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.4s ease;
+    opacity: 0;
+  }
+  
+  .faq-answer-inner {
+    overflow: hidden;
+  }
+  
+  .faq-answer-content {
+    padding-bottom: 30px;
+    color: var(--text-muted);
+    font-size: 16px;
+    line-height: 1.8;
+  }
+
+  .faq-item.active .faq-answer {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
 </style>
 </head>
 <body data-theme="dark">
@@ -571,8 +659,8 @@
 
   <div class="stats-row">
     <div class="stat-item">
-      <span class="stat-val">4 mo</span>
-      <span class="stat-label">to launch</span>
+      <span class="stat-val">Launching</span>
+      <span class="stat-label">Soon</span>
     </div>
     <div class="stat-item">
       <span class="stat-val">B2B+C</span>
@@ -632,7 +720,7 @@
   </div>
 </section>
 
-<section class="content-section reveal" style="padding-bottom: 200px;">
+<section class="content-section reveal">
   <span class="section-tag">// Capabilities</span>
   <h2>Vibe coding.<br/>For robots.</h2>
   <div class="content-grid">
@@ -655,6 +743,107 @@
       <span class="card-num">04 / SCALE</span>
       <h3>Hobby to Hero</h3>
       <p>Start on a ₹500 Arduino. Scale to industrial robotics. The same platform grows with you from classroom project to startup product.</p>
+    </div>
+  </div>
+</section>
+
+<section class="content-section reveal" style="padding-bottom: 200px;">
+  <span class="section-tag">// FAQ</span>
+  <h2>Common questions.</h2>
+  <div class="faq-container">
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>What is ARS and how does it work?</span>
+        <span class="faq-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line class="vertical-line" x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </span>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          <div class="faq-answer-content">
+            ARS (Autonomous Robotics Stack) is an AI-powered platform that automates robotics development. It helps users design, simulate, and generate code for robots — all in one unified system.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>What problem is ARS solving in robotics?</span>
+        <span class="faq-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line class="vertical-line" x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </span>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          <div class="faq-answer-content">
+            Robotics development today is complex, time-consuming, and fragmented across multiple tools. ARS simplifies this by bringing the entire workflow into a single, intelligent platform.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>How is ARS different from tools like ROS and simulators?</span>
+        <span class="faq-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line class="vertical-line" x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </span>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          <div class="faq-answer-content">
+            Traditional tools focus on specific parts of development. ARS acts as a full-stack platform — integrating design, simulation, and code generation into one seamless experience.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>Who is ARS built for?</span>
+        <span class="faq-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line class="vertical-line" x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </span>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          <div class="faq-answer-content">
+            ARS is designed for robotics engineers, students, startups, and teams looking to build and deploy robots faster and more efficiently.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>When will ARS be available and how can I get access?</span>
+        <span class="faq-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line class="vertical-line" x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </span>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          <div class="faq-answer-content">
+            ARS is currently in early development. You can join the waitlist to get early access and be among the first to experience the platform.
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -734,6 +923,23 @@
   }, { threshold: 0.1 });
 
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // FAQ Accordion
+  document.querySelectorAll('.faq-question').forEach(button => {
+    button.addEventListener('click', () => {
+      const faqItem = button.parentElement;
+      const isActive = faqItem.classList.contains('active');
+      
+      // Close all others
+      document.querySelectorAll('.faq-item').forEach(item => {
+        item.classList.remove('active');
+      });
+
+      if (!isActive) {
+        faqItem.classList.add('active');
+      }
+    });
+  });
 
   // Form Submission
   async function subscribe() {
