@@ -377,86 +377,101 @@
 
   .demo-snippet {
     width: 100%;
-    max-width: 650px;
+    max-width: 800px;
     margin: 60px auto 0;
-    background: var(--surface);
+    background: rgba(26, 26, 26, 0.4);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 12px;
     overflow: hidden;
     text-align: left;
+    padding: 20px 24px 24px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.15);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
   }
 
+  [data-theme="light"] .demo-snippet {
+    background: rgba(250, 250, 250, 0.6);
+  }
+
   .demo-header {
-    background: var(--grid);
-    padding: 12px 15px;
     display: flex;
     align-items: center;
-    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
   }
 
   .demo-header .dot {
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     margin-right: 8px;
-  }
-  .demo-header .dot:nth-child(1) { background: #FF5F56; }
-  .demo-header .dot:nth-child(2) { background: #FFBD2E; }
-  .demo-header .dot:nth-child(3) { background: #27C93F; }
-
-  .demo-title {
-    margin-left: 15px;
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    color: var(--text-muted);
+    background: rgba(120, 120, 120, 0.4);
   }
 
   .demo-body {
-    padding: 24px;
-    font-family: 'Space Mono', monospace;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
   }
 
-  .demo-prompt {
+  .demo-prompt-box {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
     display: flex;
+    align-items: center;
     gap: 12px;
-    margin-bottom: 24px;
-    line-height: 1.6;
-    font-size: 13px;
+  }
+
+  [data-theme="light"] .demo-prompt-box,
+  [data-theme="light"] .demo-output-card {
+    background: rgba(0, 0, 0, 0.02);
   }
 
   .prompt-arrow {
     color: var(--accent);
+    font-weight: 700;
+    font-size: 18px;
+    font-family: 'Space Mono', monospace;
   }
 
   .prompt-text {
     color: var(--text);
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
   }
 
-  .demo-outputs {
+  .demo-outputs-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .demo-output-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    background: var(--grid);
-    padding: 16px;
-    border-radius: 6px;
-    border: 1px dashed var(--border);
+    gap: 10px;
   }
 
-  .demo-output {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-  }
-
-  .output-label {
-    color: var(--accent-secondary);
-  }
-
-  .output-value {
+  .demo-output-card .output-label {
     color: var(--text-muted);
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .demo-output-card .output-value {
+    color: var(--text);
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .founder-message-box {
@@ -673,9 +688,11 @@
     footer { flex-direction: column; gap: 30px; text-align: center; padding: 40px 20px; }
     .footer-links { gap: 25px; }
 
-    .demo-body { padding: 16px; }
-    .demo-prompt { font-size: 12px; }
-    .demo-output { flex-direction: column; gap: 6px; font-size: 11px; }
+    .demo-snippet { padding: 16px; margin-top: 40px; }
+    .demo-prompt-box { padding: 12px 16px; align-items: flex-start; }
+    .prompt-text { font-size: 13px; }
+    .demo-outputs-grid { grid-template-columns: 1fr; gap: 12px; }
+    .demo-output-card { padding: 12px 16px; }
 
     .founder-message-box { padding: 24px; flex-direction: column; gap: 16px; }
     .f-box-icon { width: 40px; height: 40px; }
@@ -906,17 +923,25 @@
   <div class="demo-snippet">
     <div class="demo-header">
       <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-      <span class="demo-title">ARS_Generator.exe</span>
     </div>
     <div class="demo-body">
-      <div class="demo-prompt">
+      <div class="demo-prompt-box">
         <span class="prompt-arrow">➜</span> 
-        <span class="prompt-text">make my differential drive robot avoid obstacles using point cloud data from the RPLIDAR A1 and test it in a Gazebo simulation</span>
+        <span class="prompt-text">"make my differential drive robot avoid obstacles using point cloud data from the RPLIDAR A1 and test it in a Gazebo simulation"</span>
       </div>
-      <div class="demo-outputs">
-        <div class="demo-output"><span class="output-label">ROS 2 Node:</span> <span class="output-value">src/lidar_obstacle_avoider.cpp ✓</span></div>
-        <div class="demo-output"><span class="output-label">URDF Model:</span> <span class="output-value">urdf/diff_drive_bot.urdf.xacro ✓</span></div>
-        <div class="demo-output"><span class="output-label">Simulation:</span> <span class="output-value">launch/gazebo_indoor_world.launch.py ✓</span></div>
+      <div class="demo-outputs-grid">
+        <div class="demo-output-card">
+          <span class="output-label">ROS 2 Node</span>
+          <span class="output-value">src/lidar_obstacle_avoider.cpp ✓</span>
+        </div>
+        <div class="demo-output-card">
+          <span class="output-label">URDF Model</span>
+          <span class="output-value">urdf/diff_drive_bot.urdf.xacro ✓</span>
+        </div>
+        <div class="demo-output-card">
+          <span class="output-label">Simulation</span>
+          <span class="output-value">launch/gazebo_indoor_world... ✓</span>
+        </div>
       </div>
     </div>
   </div>
