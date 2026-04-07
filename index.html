@@ -326,6 +326,90 @@
     text-transform: uppercase;
   }
 
+  .demo-snippet {
+    width: 100%;
+    max-width: 650px;
+    margin: 60px auto 0;
+    background: rgba(10, 10, 10, 0.6);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: left;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .demo-header {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .demo-header .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+  }
+  .demo-header .dot:nth-child(1) { background: #FF5F56; }
+  .demo-header .dot:nth-child(2) { background: #FFBD2E; }
+  .demo-header .dot:nth-child(3) { background: #27C93F; }
+
+  .demo-title {
+    margin-left: 15px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .demo-body {
+    padding: 24px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .demo-prompt {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    line-height: 1.6;
+    font-size: 13px;
+  }
+
+  .prompt-arrow {
+    color: var(--accent);
+  }
+
+  .prompt-text {
+    color: var(--text);
+  }
+
+  .demo-outputs {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    background: rgba(255, 255, 255, 0.02);
+    padding: 16px;
+    border-radius: 6px;
+    border: 1px dashed var(--border);
+  }
+
+  .demo-output {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+  }
+
+  .output-label {
+    color: var(--accent-secondary);
+  }
+
+  .output-value {
+    color: var(--text-muted);
+  }
+
   .stats-row {
     display: flex;
     justify-content: center;
@@ -476,6 +560,10 @@
     .grid-card { padding: 40px 25px; }
     footer { flex-direction: column; gap: 30px; text-align: center; padding: 40px 20px; }
     .footer-links { gap: 25px; }
+
+    .demo-body { padding: 16px; }
+    .demo-prompt { font-size: 12px; }
+    .demo-output { flex-direction: column; gap: 6px; font-size: 11px; }
     
     .waitlist-wrap {
       flex-direction: column;
@@ -673,6 +761,24 @@
     <button onclick="subscribe()">Get Early Access to ARS</button>
   </div>
   <p class="waitlist-count">212 builders already waiting</p>
+
+  <div class="demo-snippet">
+    <div class="demo-header">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="demo-title">ARS_Generator.exe</span>
+    </div>
+    <div class="demo-body">
+      <div class="demo-prompt">
+        <span class="prompt-arrow">➜</span> 
+        <span class="prompt-text">make my differential drive robot avoid obstacles using point cloud data from the RPLIDAR A1 and test it in a Gazebo simulation</span>
+      </div>
+      <div class="demo-outputs">
+        <div class="demo-output"><span class="output-label">ROS 2 Node:</span> <span class="output-value">src/lidar_obstacle_avoider.cpp ✓</span></div>
+        <div class="demo-output"><span class="output-label">URDF Model:</span> <span class="output-value">urdf/diff_drive_bot.urdf.xacro ✓</span></div>
+        <div class="demo-output"><span class="output-label">Simulation:</span> <span class="output-value">launch/gazebo_indoor_world.launch.py ✓</span></div>
+      </div>
+    </div>
+  </div>
 
   <div class="stats-row">
     <div class="stat-item">
