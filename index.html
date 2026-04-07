@@ -996,20 +996,7 @@
   </div>
 </section>
 
-<section class="content-section reveal" style="padding: 60px 5% 100px;">
-  <div class="founder-message-box">
-    <div class="f-box-icon">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M11 21L4 14l7-7"></path>
-        <path d="M4 14h10c3.866 0 7-3.134 7-7v0"></path>
-      </svg>
-    </div>
-    <div class="f-box-content">
-      <span class="f-box-tag">From the Founder</span>
-      <p>AutoRobotics Studio is currently in active development, engineered from the ground up by a student founder in India. Request early access today to follow the journey and shape the platform as we build.</p>
-    </div>
-  </div>
-</section>
+
 
 <section class="content-section reveal" style="padding-bottom: 200px;">
   <span class="section-tag">// FAQ</span>
@@ -1227,9 +1214,14 @@
           `<div style="color: var(--accent-secondary); padding: 18px; font-family: 'Space Mono'; font-size: 14px; width: 100%; text-align: center;">// you're on the list. talk soon.</div>`;
       } catch (err) {
         console.error('Error saving email:', err);
-        button.innerText = 'ERROR, TRY AGAIN';
-        button.disabled = false;
-        setTimeout(() => { button.innerText = originalText; }, 2000);
+        if (err.code === '23505' || (err.message && err.message.toLowerCase().includes('duplicate'))) {
+          document.querySelector('.waitlist-wrap').innerHTML = 
+            `<div style="color: var(--accent-secondary); padding: 18px; font-family: 'Space Mono'; font-size: 14px; width: 100%; text-align: center;">// email is already registered.</div>`;
+        } else {
+          button.innerText = 'ERROR, TRY AGAIN';
+          button.disabled = false;
+          setTimeout(() => { button.innerText = originalText; }, 2000);
+        }
       }
     } else {
       emailInput.style.borderColor = 'var(--accent-tertiary)';
