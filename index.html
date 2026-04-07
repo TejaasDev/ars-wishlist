@@ -410,6 +410,63 @@
     color: var(--text-muted);
   }
 
+  .founder-message-box {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 32px 40px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(12px);
+  }
+  .founder-message-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--accent), var(--accent-secondary));
+    box-shadow: 1px 0 15px var(--accent);
+  }
+  .f-box-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(124, 92, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--accent);
+  }
+  .f-box-content {
+    flex: 1;
+    text-align: left;
+  }
+  .f-box-tag {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    color: var(--accent-secondary);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+  .f-box-content p {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text-muted);
+    margin: 0;
+  }
+
   .stats-row {
     display: flex;
     justify-content: center;
@@ -564,6 +621,10 @@
     .demo-body { padding: 16px; }
     .demo-prompt { font-size: 12px; }
     .demo-output { flex-direction: column; gap: 6px; font-size: 11px; }
+
+    .founder-message-box { padding: 24px; flex-direction: column; gap: 16px; }
+    .f-box-icon { width: 40px; height: 40px; }
+    .f-box-tag { margin-bottom: 8px; }
     
     .waitlist-wrap {
       flex-direction: column;
@@ -870,10 +931,19 @@
   </div>
 </section>
 
-<section class="content-section reveal" style="text-align: center; max-width: 900px; margin: 0 auto; padding: 60px 5% 100px;">
-  <p style="font-size: clamp(20px, 3vw, 28px); font-family: 'Syne', sans-serif; line-height: 1.6; color: var(--text); font-weight: 700;">
-    AutoRobotics Studio is currently in active development, engineered from the ground up by a <span style="color: var(--accent);">student founder in India</span>. Request early access today to follow the journey and shape the platform as we build.
-  </p>
+<section class="content-section reveal" style="padding: 60px 5% 100px;">
+  <div class="founder-message-box">
+    <div class="f-box-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 21L4 14l7-7"></path>
+        <path d="M4 14h10c3.866 0 7-3.134 7-7v0"></path>
+      </svg>
+    </div>
+    <div class="f-box-content">
+      <span class="f-box-tag">From the Founder</span>
+      <p>AutoRobotics Studio is currently in active development, engineered from the ground up by a student founder in India. Request early access today to follow the journey and shape the platform as we build.</p>
+    </div>
+  </div>
 </section>
 
 <section class="content-section reveal" style="padding-bottom: 200px;">
