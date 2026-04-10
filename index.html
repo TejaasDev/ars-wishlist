@@ -857,7 +857,7 @@
   }
 </style>
 </head>
-<body data-theme="light">
+<body>
 
 <div class="grid"></div>
 <div class="glow-orb" id="glowOrb"></div>
@@ -1172,15 +1172,15 @@
 
   // Theme Toggle
   function toggleTheme() {
-    const body = document.body;
+    const root = document.documentElement;
     const btn = document.getElementById('themeBtn');
-    const isDark = body.getAttribute('data-theme') === 'dark';
+    const isDark = root.getAttribute('data-theme') === 'dark';
     
     if (isDark) {
-      body.setAttribute('data-theme', 'light');
+      root.setAttribute('data-theme', 'light');
       btn.innerText = 'Dark Mode';
     } else {
-      body.setAttribute('data-theme', 'dark');
+      root.setAttribute('data-theme', 'dark');
       btn.innerText = 'Light Mode';
     }
   }
